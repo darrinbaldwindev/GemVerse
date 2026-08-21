@@ -1,0 +1,13 @@
+# Large project archives
+*.zip
+
+# Local test artifact
+test-write.txt
+
+# Common local and generated files
+.DS_Store
+Thumbs.db
+__pycache__/
+*.py[cod]
+.env
+.env.*
