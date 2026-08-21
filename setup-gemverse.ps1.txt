@@ -1,0 +1,73 @@
+# setup-gemverse.ps1 — Cleanup + Create Empty Files
+$root = "E:\Downloads\Perplexity\GemVerse"
+Set-Location $root
+
+Write-Host "=== CLEANUP ===" -ForegroundColor Cyan
+
+# Archive directories
+"archive/handover-v1", "archive/numbered-backups", "archive/root-duplicates" | ForEach-Object {
+    if (-not (Test-Path $_)) { New-Item -ItemType Directory -Path $_ | Out-Null }
+    Write-Host "✓ Created $_" -ForegroundColor Green
+}
+
+# Move numbered duplicates (21 files)
+$numbered = @(
+    "01-canon-map (1).md", "02-conflicts-log (1).md", "03-tier1-readiness (1).md",
+    "04-book-of-harmony (1).md", "05-first-harmony (1).md", "06-five-wounds (1).md",
+    "07-crystal-network (1).md", "08-lantern-network (1).md", "09-restoration-era (1).md",
+    "arena-realm-production-brief (1).md", "canon-risk-report-20260601 (1).md",
+    "companion-packet-frostpaw (1).md", "companion-packet-spark (1).md",
+    "companion-packet-verdant (1).md", "decision-01-kael-reframe (1).md",
+    "gemverse_realm_packet_template (1).md", "puzzle-catalog (1).md",
+    "realm-packet-arena-realm (1).md", "realm-packet-crystal-forest (1).md",
+    "tier-roadmap-tracker (1).md", "puzzle-meta-proposals (1).md", "puzzle-meta-proposals (2).md"
+)
+$numbered | ForEach-Object {
+    if (Test-Path $_) { Move-Item $_ "archive/numbered-backups/" -Force; Write-Host "✓ Archived $_" -ForegroundColor Yellow }
+}
+
+# Move handover packs
+"GemVerse_Handover_Files", "GemVerse_Handover_Files.zip", "gemvwese handover.md", "handover.md", "GemVerse_AI_Handover.md" | ForEach-Object {
+    if (Test-Path $_) { Move-Item $_ "archive/handover-v1/" -Force; Write-Host "✓ Archived $_" -ForegroundColor Yellow }
+}
+
+# Move AI handover duplicates
+"GemVerse_AI_Handover_Document (1).md", "GemVerse_AI_Handover_Document (2).md", "GemVerse_AI_Handover_Document2.md" | ForEach-Object {
+    if (Test-Path $_) { Move-Item $_ "archive/numbered-backups/" -Force; Write-Host "✓ Archived $_" -ForegroundColor Yellow }
+}
+
+# Move root Visual Bible duplicates
+"Companion_Visual_Bible_Volume_1.md", "Companion_Visual_Bible_Volume_2.md" | ForEach-Object {
+    if (Test-Path $_) { Move-Item $_ "archive/root-duplicates/" -Force; Write-Host "✓ Archived $_" -ForegroundColor Yellow }
+}
+
+# Delete output directory
+if (Test-Path "output") { Remove-Item "output" -Recurse -Force; Write-Host "✓ Deleted output/" -ForegroundColor Red }
+
+Write-Host "=== CLEANUP DONE ===" -ForegroundColor Cyan
+
+# ===== CREATE EMPTY FILES (You'll fill from chat history) =====
+$files = @(
+    "construct3-event-sheet-specs.md",
+    "festival-encyclopedia-draft-20260804.md",
+    "harmony-index-mechanics.md",
+    "great-archive-systems.md",
+    "narrative-arcs.md",
+    "product-bible.md",
+    "technical-architecture.md",
+    "monetization-design.md",
+    "accessibility-guidance.md",
+    "live-operations.md",
+    "long-term-vision.md",
+    "conflict-15-duplicates.md",
+    "conflict-16-output-artifacts.md"
+)
+
+$files | ForEach-Object {
+    if (-not (Test-Path $_)) {
+        New-Item -ItemType File -Path $_ | Out-Null
+        Write-Host "✓ Created empty $_" -ForegroundColor Green
+    }
+}
+
+Write-Host "`n=== NEXT: COPY CONTENT FROM CHAT HISTORY INTO EACH FILE ===" -ForegroundColor Cyan
