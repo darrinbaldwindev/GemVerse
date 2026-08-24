@@ -89,3 +89,22 @@ A lightweight read-only change scan should occur daily, with a deeper cross-repo
 The initial Overseer-log pull request, [GemVerse PR #1](https://github.com/darrinbaldwindev/manus/pull/1), remains **OPEN**, non-draft, and `CLEAN` for merge at head `1ba11e41946c8b6bb71d6a855798e32e80c9b77e` against base `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9`. At the time of this check it had no review decision, reviews, or comments.
 
 The request remains documentation-only and changes only `docs/overseer/OVERSEER.md`. No GemVerse canon, source material, configuration, CI/CD, asset, deployment, data, or external integration was changed by this status check.
+
+## Portfolio continuity audit — 2026-08-24T10:00:00Z
+
+### OVERSEER-20260824-003
+
+- **Severity:** MEDIUM
+- **Area:** continuity / source of truth
+- **Finding:** This log and PR #1 record the reviewed reference as `main` at `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9`, but a refreshed repository inspection confirms that remote `main` has been deleted. The available canonical/default review branch is now `gemverse` at that same revision, and PR #1 is based on `gemverse`.
+- **Evidence:** `origin/gemverse` resolves to `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9`; the current open pull-request metadata reports `gemverse` as PR #1’s base. The project instructions continue to require an explicit authority order and distinguish technical claims from accessible source evidence.
+- **Why it matters:** A fresh reviewer following the existing oversight record can attempt to use a deleted branch and lose the canonical review baseline. The branch-name drift also makes the log less reliable as a handoff source, even though the recorded content revision remains reachable.
+- **Recommendation:** Darrin should confirm whether `gemverse` is the intended canonical/default branch. Preserve the initial `main` observation as dated historical evidence, but amend or supersede the authorized oversight record with the current branch name, exact revision, and ongoing technical-source limitation. Do not use the branch correction to infer application implementation or readiness.
+- **Suggested owner:** Darrin
+- **Status:** NEEDS DECISION
+- **Confidence:** HIGH
+- **Authorized PR notification:** Posted once to [GemVerse PR #1](https://github.com/darrinbaldwindev/manus/pull/1#issuecomment-5393255420). The notification neither approves nor modifies canon, source, runtime, production, merge, or release state.
+
+### Audit boundary
+
+This entry is a static, read-only repository and pull-request comparison. It does not execute game/runtime code, tests, builds, source intake, asset licensing checks, deployments, credentials, or production actions.
