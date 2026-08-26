@@ -108,3 +108,22 @@ The request remains documentation-only and changes only `docs/overseer/OVERSEER.
 ### Audit boundary
 
 This entry is a static, read-only repository and pull-request comparison. It does not execute game/runtime code, tests, builds, source intake, asset licensing checks, deployments, credentials, or production actions.
+
+## Project timeline and current milestone — 2026-08-26T11:02:51+10:00
+
+**Scope and evidence:** Deep static review of default `gemverse` at `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9`, recent history, 38 tracked files (28 documentation-path; no source-path, test-path, workflow-path, or release evidence), and open documentation-only PR [#1](https://github.com/darrinbaldwindev/manus/pull/1). No game build, code, Construct project, asset transfer, deployment, credential, or external service action was run.
+
+| Timeline point | Verified observation | Status |
+|---|---|---|
+| 4–19 Aug | Canon/creator-decision records were consolidated; the priority record marks Tier 1 foundation stable and resolves the former creator-decision cluster. | Canon foundation established. |
+| Current | Tier 2 realm packets remain pending, Tier 3 companion packets are in progress, and Tier 6 game systems are marked blocked. The branch’s recent commits concern repository synchronization/ignore policy, not new executable game evidence. | Production and verification work held. |
+
+**Current milestone:** Select and verify the Arena implementation path, apply the locked canon to dependent materials, and produce a first-slice evidence/checklist record before any launch or release assessment.
+
+**Held blockers:** Construct 3 parity is unverified: no native `.c3p`, Construct export, `project.json`, or executable event-sheet asset is present for comparison with the recovered specification. More than 30 Space files remain unpreviewed; seven generated output artifacts are not verified as integrated; outsourced combat/power-style assets remain an active canon/visual-drift risk; and the Arena first-slice checklist is not yet complete.
+
+**Owner decision:** Darrin must decide whether the browser Arena slice is the authoritative implementation path or whether a Construct project/export must be supplied for parity review, and must authorize any asset/file-access handoff. This entry authorizes neither game implementation, asset publication, deployment, nor release.
+
+**Next Overseer instruction:** Maintain this timeline append-only. On a material canon, asset, implementation evidence, repository, or review change, record date, exact artifact/revision, verified fact versus claim, tier/milestone status, blocker, owner decision, and reassessment condition. Do not modify canon, assets, game files, external spaces, or release settings without separate authority.
+
+**Confidence:** High for repository and project-record status; limited for unreviewed external assets, Construct parity, and browser-slice execution.
