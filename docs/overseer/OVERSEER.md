@@ -137,3 +137,17 @@ This entry is a static, read-only repository and pull-request comparison. It doe
 **Closure evidence:** Exact branch/files; missing Construct/project/export evidence; unreviewed asset/Space inventory; provenance gaps; one owner decision.
 
 **Immediate successor:** On closure and artifact/access availability, issue **G-02**: reconcile the supplied implementation evidence against the first-slice checklist.
+
+## Wave 1 task closure — G-01 — 2026-08-26T13:58:32+10:00
+
+**Author/platform:** Manus Overseer. **Scope:** Read-only review of `gemverse` at `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9` and current source records `NEXT_PRIORITIES.md`, `RISK_REGISTER.md`, and `12_ARENA_FIRST_SLICE_IMPLEMENTATION_READINESS_20260819.md`. No game, Construct, asset, external-space, publication, or release action was run.
+
+**Result:** **G-01 CLOSED — implementation-path and asset-evidence inventory completed.** Tier 1 canon/creator decisions are recorded as settled, but the readiness matrix remains a pre-implementation acceptance draft. It states that the Construct 3 source project was not supplied; game source is missing; UI/gameplay and asset readiness are unverified; and release readiness is not ready. The active risk register adds unpreviewed Space files, unverified generated outputs, combat/power-trope visual drift, and unresolved event-sheet parity as active risks.
+
+**Owner decision required:** Provide a native Construct project/export (including event sheets and testable build evidence) for parity review **or** explicitly designate the browser Arena slice as the authoritative implementation path and supply its canonical source/location. Separately authorize only the minimum asset/Space access needed to verify provenance and integration.
+
+### Active successor — G-02
+
+**Task G-02:** When the owner-provided implementation artifact or access record exists, reconcile it against the Arena first-slice checklist, including canon framing, UI/gameplay evidence, asset provenance, accessibility metadata, and release gates. Until then, do not repeat the file inventory.
+
+**Status:** G-01 closed; G-02 active and blocked on implementation-path decision and artifact/access availability.
