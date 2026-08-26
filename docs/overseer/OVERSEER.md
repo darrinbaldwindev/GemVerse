@@ -127,3 +127,13 @@ This entry is a static, read-only repository and pull-request comparison. It doe
 **Next Overseer instruction:** Maintain this timeline append-only. On a material canon, asset, implementation evidence, repository, or review change, record date, exact artifact/revision, verified fact versus claim, tier/milestone status, blocker, owner decision, and reassessment condition. Do not modify canon, assets, game files, external spaces, or release settings without separate authority.
 
 **Confidence:** High for repository and project-record status; limited for unreviewed external assets, Construct parity, and browser-slice execution.
+
+## Active task assignment — Wave 1 (G-01) — 2026-08-26T13:50:47+10:00
+
+**Authority and scope:** Darrin’s continuous-task-chain instruction. This is a read-only canon/implementation-evidence task; it does not authorize asset transfer, game implementation, Construct execution, external-space access, publication, deployment, or changes outside this log.
+
+**Task G-01:** Produce an implementation-path and asset-evidence inventory. Separate stable canon/readiness records from executable game/Construct evidence, and identify the smallest artifact or access decision needed.
+
+**Closure evidence:** Exact branch/files; missing Construct/project/export evidence; unreviewed asset/Space inventory; provenance gaps; one owner decision.
+
+**Immediate successor:** On closure and artifact/access availability, issue **G-02**: reconcile the supplied implementation evidence against the first-slice checklist.
