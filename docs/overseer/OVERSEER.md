@@ -8,44 +8,43 @@
 
 GemVerse is a narrative universe, game-design, and IP-development project. Its current repository primarily contains canon-management, readiness, risk, and implementation-planning material rather than a verified game runtime.
 
-## Last scan
-
-2026-08-31T09:22:00+10:00
-
 ## Current status
 
 **AMBER — ATTENTION REQUIRED**
 
-## Scan update — 2026-08-31
+## Scan update — 2026-08-31 (20:46 AEST)
 
-A fresh read-only repository scan was performed against the current default branch `gemverse` at `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9`. The repository remains active and private. The root inventory remains documentation-heavy, with canon/readiness/risk/planning records and visual assets, but no verified native Construct 3 project or executable game-source baseline was found in the repository tree.
+A fresh repository/state scan was performed. The canonical/default branch remains `gemverse` at `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9`. The repository currently has an Overseer branch `agent/overseer/initial-scan`; no new implementation branch was identified. The repository tree remains documentation/design/readiness-heavy and contains no verified native Construct 3 project, executable game-source baseline, build evidence, or test evidence sufficient to close G-02.
 
-The current repository state still supports the earlier assessment that GemVerse has a strong canon/governance foundation but cannot yet substantiate technical release readiness. `NEXT_PRIORITIES.md` continues to identify the implementation-path decision, Construct parity evidence, unpreviewed Space material, generated-output integration, and Arena first-slice acceptance as priority work.
+### State changes / corrections
 
-### Verified current conditions
+- Repository visibility is currently **public**. Earlier log text stating private is historical/stale and must not be used as the current state.
+- PR #1 remains open, non-draft, documentation-only, and currently mergeable. Its base is `gemverse`; its head is `agent/overseer/initial-scan` at `5a345a053fef39c0c9178d22845bbe866fb9de87`.
+- The PR body has been refreshed with the current branch and visibility observations. No merge action has been taken.
+- The branch `gemverse` itself has not advanced beyond `f5d6aac…`; recent canonical commits are repository synchronization/ignore-policy work rather than executable implementation evidence.
+- The implementation readiness matrix continues to state that the Construct source project was not supplied and that first-slice evidence remains unverified.
 
-- `ScanMe.md` continues to require a repository/workspace scan before project-specific work.
-- `SESSION-LOG.md` remains the continuity record and records the latest known implementation-readiness limitations.
-- `NEXT_PRIORITIES.md` remains the execution-order source and identifies P1 implementation/evidence blockers and P2 production work.
-- The repository's latest visible commit remains `f5d6aac06c2c8e40ad48c140e2a988657e3d0da9`; recent repository commits visible to the connector are synchronization/ignore-policy work rather than new executable game evidence.
-- GitHub currently reports no open issues for GemVerse.
-- Overseer PR #1 remains open and documentation-only; it does not constitute implementation or release approval.
+### Governance baseline
 
-### G-02 successor assessment
+`DECISION_LOG.md` remains the durable decision source. Core canon and tone decisions are locked, including the Eight Pillars, Five Wounds, non-combat/non-villain framing, Arena as a civic assembly, and canon-safe puzzle/tool framing. These locked decisions remain constraints for any future implementation review.
 
-**G-01 remains closed. G-02 remains BLOCKED.** No owner-provided implementation artifact or implementation-path decision was found in the current repository scan that would permit the requested parity/acceptance review.
+### G-02 assessment
 
-The smallest unblock remains one of:
+**G-01: CLOSED.**
 
-1. an owner-designated canonical browser Arena source/location that can be inspected as the authoritative implementation; or
-2. a native Construct 3 project/export plus testable build evidence for parity review.
+**G-02: BLOCKED.**
 
-Once that evidence exists, the next review should reconcile it against the Arena first-slice checklist, including canon framing, UI/gameplay evidence, asset provenance, accessibility evidence, and release gates. Until then, repeating the same inventory would add no value.
+The blocker is evidence, not another documentation pass. The smallest acceptable unblock is either:
 
-## Operating boundary
+1. an owner-designated canonical browser Arena implementation/source that can be inspected as authoritative; or
+2. a native Construct 3 project/export with testable build/source evidence.
 
-This scan was read-only except for this append-only Overseer log update. No canon, application/game source, assets, configuration, CI/CD, migrations, production data, deployment settings, external spaces, or creator decisions were changed.
+When evidence arrives, evaluate it directly against the Arena first-slice acceptance matrix: entry/orientation, canon-safe tone, Kael framing, companion role, puzzle purpose, mechanics terminology, resource behavior, contribution-based progression, accessibility, local save/load, privacy/dependencies, and release evidence.
+
+## Autonomous action taken
+
+The Overseer refreshed this log on the existing `agent/overseer/initial-scan` branch to preserve current-state evidence and prevent stale private/branch assertions from propagating. No canon, runtime, assets, configuration, production data, repository visibility, branch protection, or deployment settings were changed.
 
 ## Next autonomous action
 
-On the next material repository change, implementation artifact, implementation-path decision, or owner-provided access record, reassess G-02 directly against the first-slice acceptance evidence rather than repeating the historical inventory. If no such evidence appears, retain the blocker and continue monitoring the repository state.
+Do not repeat a full historical inventory unless the repository changes. On the next material change, inspect the changed evidence first and attempt G-02 validation. If implementation evidence is still absent, maintain the blocker and keep the governance record current. PR #1 remains intentionally unmerged pending owner-level disposition.
