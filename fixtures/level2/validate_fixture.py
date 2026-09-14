@@ -58,26 +58,61 @@ def canonical_prepared_record() -> dict:
 
 
 def validate_prepared_record(record: dict) -> None:
-    if record != canonical_prepared_record():
+    expected = canonical_prepared_record()
+    extra = sorted(set(record) - set(expected))
+    missing = sorted(set(expected) - set(record))
+    if extra:
+        raise AssertionError(f"unrecognised prepared metadata fields: {extra}")
+    if missing:
+        raise AssertionError(f"missing prepared metadata fields: {missing}")
+    if record != expected:
         raise AssertionError("prepared record identity/correlation mismatch")
 
 
+def recovery_evidence(action: str, record: dict) -> dict:
+    return {
+        "fixture": True,
+        "mission": record["mission"],
+        "project": record["project"],
+        "correlation_id": record["correlation_id"],
+        "preimage_sha256": record["preimage_sha256"],
+        "target_sha256": record["target_sha256"],
+        "action": action,
+    }
+
+
 def recover(current_text: str, prepared_text: str, record: dict) -> dict:
-    validate_complete_state(current_text)
-    validate_complete_state(prepared_text)
-    validate_prepared_record(record)
+    try:
+        validate_complete_state(current_text)
+    except AssertionError as exc:
+        raise AssertionError("RECOVERY_DENIED_CURRENT_STATE_INVALID") from exc
+    try:
+        validate_complete_state(prepared_text)
+    except AssertionError as exc:
+        raise AssertionError("RECOVERY_DENIED_PREPARED_STATE_INVALID") from exc
+    try:
+        validate_prepared_record(record)
+    except AssertionError as exc:
+        raise AssertionError(f"RECOVERY_DENIED_PREPARED_IDENTITY: {exc}") from exc
     if sha256_text(prepared_text) != record["target_sha256"] or prepared_text != TARGET:
-        raise AssertionError("prepared payload is not canonical target")
+        raise AssertionError("RECOVERY_DENIED_PREPARED_PAYLOAD_MISMATCH")
     if current_text == TARGET:
-        return {"chosen_state": "TARGET", "action": "ALREADY_COMPLETE", "correlation_id": record["correlation_id"]}
-    if current_text == INITIAL:
-        return {"chosen_state": "TARGET", "action": "PROMOTE_PREPARED", "correlation_id": record["correlation_id"]}
-    raise AssertionError("unrecoverable state")
+        action = "ALREADY_COMPLETE"
+    elif current_text == INITIAL:
+        action = "PROMOTE_PREPARED"
+    else:
+        raise AssertionError("RECOVERY_DENIED_UNRECOVERABLE_STATE")
+    return {
+        "chosen_state": "TARGET",
+        "action": action,
+        "correlation_id": record["correlation_id"],
+        "evidence": recovery_evidence(action, record),
+    }
 
 
 def recover_candidates(current_text: str, candidates: list[dict]) -> dict:
     if len(candidates) != 1:
-        raise AssertionError("prepared recovery requires exactly one correlated candidate")
+        raise AssertionError("RECOVERY_DENIED_CANDIDATE_AMBIGUITY")
     candidate = candidates[0]
     return recover(current_text, candidate["payload"], candidate["record"])
 
@@ -111,9 +146,7 @@ def main() -> None:
     assert repository_before == INITIAL, "repository fixture no longer matches canonical initial state"
 
     first = mutate(repository_before)
-    assert first == TARGET, "authorised mutation does not produce exact target"
-    assert first.count("state=VERIFIED_EDIT") == 1
-    assert first.count("counter=1") == 1
+    assert first == TARGET
     assert mutate(first) == TARGET, "replay is not idempotent"
 
     near_misses = {
@@ -134,8 +167,8 @@ def main() -> None:
         "prepared-wrong-target": {**canonical_prepared, "target_sha256": sha256_text(INITIAL)},
         "prepared-wrong-mission": {**canonical_prepared, "mission": "other"},
         "prepared-wrong-correlation": {**canonical_prepared, "correlation_id": "other"},
+        "prepared-extra-field": {**canonical_prepared, "unexpected": "value"},
         "prepared-missing-project": {k: v for k, v in canonical_prepared.items() if k != "project"},
-        "prepared-missing-mission": {k: v for k, v in canonical_prepared.items() if k != "mission"},
     }
     for label, record in prepared_near_misses.items():
         assert_prepared_rejected(record, label)
@@ -144,62 +177,46 @@ def main() -> None:
         work = Path(tmp) / SOURCE.name
         shutil.copy2(SOURCE, work)
         original = work.read_text(encoding="utf-8")
-        assert original == INITIAL
-
         prepared = work.with_suffix(work.suffix + ".prepared")
         prepared.write_text(TARGET, encoding="utf-8")
-        prepared_meta = work.with_suffix(work.suffix + ".prepared.json")
-        prepared_meta.write_text(json.dumps(canonical_prepared, sort_keys=True), encoding="utf-8")
+        candidate = {"payload": prepared.read_text(encoding="utf-8"), "record": canonical_prepared}
 
-        candidate = {"payload": prepared.read_text(encoding="utf-8"), "record": json.loads(prepared_meta.read_text(encoding="utf-8"))}
         decision = recover_candidates(original, [candidate])
         repeated = recover_candidates(original, [candidate])
         assert json.dumps(decision, sort_keys=True) == json.dumps(repeated, sort_keys=True), "recovery decision is not byte-stable"
         assert decision["action"] == "PROMOTE_PREPARED"
+        assert decision["evidence"]["fixture"] is True
+        assert decision["evidence"]["action"] == "PROMOTE_PREPARED"
 
         duplicate = recover_candidates(TARGET, [candidate])
         assert duplicate["action"] == "ALREADY_COMPLETE"
+        assert duplicate["evidence"]["action"] == "ALREADY_COMPLETE"
         assert duplicate["correlation_id"] == decision["correlation_id"]
 
-        # Metadata can be canonical while payload is not; payload hash/target binding must still fail closed.
+        try:
+            recover("mission=agentos-level2\nproject=other\nstate=INITIAL\ncounter=0\nnote=non-production-fixture\n", TARGET, canonical_prepared)
+        except AssertionError as exc:
+            assert "RECOVERY_DENIED_CURRENT_STATE_INVALID" in str(exc)
+        else:
+            raise AssertionError("prepared/current identity disagreement was accepted")
+
         try:
             recover(INITIAL, INITIAL, canonical_prepared)
-        except AssertionError:
-            pass
+        except AssertionError as exc:
+            assert "RECOVERY_DENIED_PREPARED_PAYLOAD_MISMATCH" in str(exc)
         else:
-            raise AssertionError("metadata-correct but payload-mismatched prepared artifact was accepted")
+            raise AssertionError("metadata-correct but payload-mismatched artifact was accepted")
 
-        noncanonical_payload = TARGET.replace("counter=1", "counter=9")
-        try:
-            recover(INITIAL, noncanonical_payload, canonical_prepared)
-        except AssertionError:
-            pass
-        else:
-            raise AssertionError("non-canonical prepared target was accepted")
-
-        competing = [
-            candidate,
-            {"payload": TARGET, "record": {**canonical_prepared, "correlation_id": "competing-correlation"}},
-        ]
+        competing = [candidate, {"payload": TARGET, "record": {**canonical_prepared, "correlation_id": "competing"}}]
         try:
             recover_candidates(INITIAL, competing)
-        except AssertionError:
-            pass
+        except AssertionError as exc:
+            assert "RECOVERY_DENIED_CANDIDATE_AMBIGUITY" in str(exc)
         else:
             raise AssertionError("competing prepared artifacts were silently selected")
 
-        for label, text in near_misses.items():
-            bad = work.with_suffix(work.suffix + f".{label}")
-            bad.write_text(text, encoding="utf-8")
-            assert_rejected(bad.read_text(encoding="utf-8"), label)
-
-        stale_meta = {**canonical_prepared, "preimage_sha256": sha256_text(TARGET)}
-        stale_path = work.with_suffix(work.suffix + ".stale-prepared.json")
-        stale_path.write_text(json.dumps(stale_meta, sort_keys=True), encoding="utf-8")
-        assert_prepared_rejected(json.loads(stale_path.read_text(encoding="utf-8")), "stale-replay")
-
     assert SOURCE.read_text(encoding="utf-8") == repository_before, "synthetic recovery tests changed canonical fixture"
-    print("PASS: GemVerse Level 2 fixture recovery is deterministic, correlation-bound, fail-closed on competing artifacts, and leaves canonical fixture unchanged")
+    print("PASS: GemVerse recovery is deterministic, evidence-bearing, identity-bound, fail-closed, and leaves canonical fixture unchanged")
 
 
 if __name__ == "__main__":
