@@ -14,14 +14,18 @@ Verified predecessor cases reject chosen-state, cross-correlation, current-state
 Disposition: fixture-only functional/security evidence; no canon/runtime/AgentOS promotion.
 
 ### GV-V2 — recovery replay/candidate/evidence expansion
+Status: VERIFIED_BOUNDED on exact head `fe827cb8b24a65e1c1ae61d5216f2dfd377ffe22`, workflow `34888949297` SUCCESS.
+Verified cases include target-state hash substitution, cross-project evidence substitution, and attempted action widening to `PUBLISH_RECOVERED_STATE`.
+
+### GV-V4 — recovery provenance field tamper expansion
 Status: ACTIVE / EXACT_HEAD_CI_PENDING
-Implementation commit: `a07a5bc44fe7286820dbde268d2fb7b5ed7d5bb7`.
-Added three adjacent fail-closed recovery-result cases:
-1. target-state hash substitution is rejected;
-2. cross-project evidence substitution is rejected;
-3. action widening to `PUBLISH_RECOVERED_STATE` is rejected even when both result/evidence action fields are changed together.
-These extend the prior strict-schema/correlation fixture without adding persistence, runtime authority or canon.
-Verification: exact-head Actions query for `a07a5bc4...` returned zero runs at reconciliation time. Predecessor `b6b4bb4.../34883530631` remains a regression baseline only and is not inherited by the new head.
+Implementation head introduced by this cycle: successor of `fe827cb8b24a65e1c1ae61d5216f2dfd377ffe22`.
+Added three homogeneous fail-closed result-evidence cases:
+1. preimage hash substitution;
+2. cross-mission evidence substitution;
+3. fixture identity demotion (`fixture=false`).
+Security mapping: SG-05/06/07/10/14; risk S2 for branch/test write only.
+Acceptance: exact-head `Level 2 fixture validation` SUCCESS on the successor head; no canon/runtime/production authority change.
 
 ### GV-V3 — AgentOS acceptance handoff packet
 Status: BLOCKED_GATED
@@ -31,9 +35,9 @@ No execution through AgentOS until those gates pass.
 
 ## Blockers / UNKNOWNs
 - Canon-dependent GemVerse work remains blocked on verified creator/source canon.
-- Exact-head CI is required before GV-V2 can be called VERIFIED.
+- Exact-head CI is required before GV-V4 can be called VERIFIED.
 - Physical/production mutation remains owner-only.
 - Fixture success does not satisfy AgentOS Level-2 admission/ownership or production authority.
 
 ## Replenishment rule
-Fresh-scan PR #10 and exact-head CI first. If the current changed lineage receives exact-head fixture-validation success, promote only GV-V2's bounded synthetic scope. Otherwise diagnose the workflow trigger/Actions evidence before adding more recovery cases. Keep all canon-dependent work blocked until verified canon exists.
+Fresh-scan PR #10 and exact-head CI first. If GV-V4 receives exact-head fixture-validation success, promote only that bounded synthetic scope and replenish with 2–5 equivalent recovery-evidence provenance negatives if a concrete gap remains. Otherwise diagnose the failing exact-head workflow before adding more cases. Keep all canon-dependent work blocked until verified canon exists.
