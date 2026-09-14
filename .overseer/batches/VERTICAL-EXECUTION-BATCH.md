@@ -18,14 +18,13 @@ Status: VERIFIED_BOUNDED on exact head `fe827cb8b24a65e1c1ae61d5216f2dfd377ffe22
 Verified cases include target-state hash substitution, cross-project evidence substitution, and attempted action widening to `PUBLISH_RECOVERED_STATE`.
 
 ### GV-V4 — recovery provenance field tamper expansion
-Status: ACTIVE / EXACT_HEAD_CI_PENDING
-Implementation head introduced by this cycle: successor of `fe827cb8b24a65e1c1ae61d5216f2dfd377ffe22`.
-Added three homogeneous fail-closed result-evidence cases:
+Status: VERIFIED_BOUNDED on exact substantive head `f85f5bb0fd9e5a28081cd0c7e40d458155420718`, Level 2 fixture validation `34895246300` SUCCESS.
+Verified three homogeneous fail-closed result-evidence cases:
 1. preimage hash substitution;
 2. cross-mission evidence substitution;
 3. fixture identity demotion (`fixture=false`).
 Security mapping: SG-05/06/07/10/14; risk S2 for branch/test write only.
-Acceptance: exact-head `Level 2 fixture validation` SUCCESS on the successor head; no canon/runtime/production authority change.
+Disposition: bounded synthetic recovery-evidence assurance only; no canon/runtime/production authority change.
 
 ### GV-V3 — AgentOS acceptance handoff packet
 Status: BLOCKED_GATED
@@ -33,11 +32,17 @@ Objective: keep a bounded preimage/edit/postimage/rollback/receipt workload read
 Dependencies: AgentOS SG-08 continuous ownership, SG-01/02 authenticated actor/grant, exact-head Green and PRS where required.
 No execution through AgentOS until those gates pass.
 
+## NEXT
+
+### GV-V5 — recovery provenance completeness expansion
+Status: PENDING
+Objective: add 2–5 equivalent fixture-only negatives only where a fresh scan identifies an uncovered provenance field or replay/candidate boundary.
+Acceptance: exact-head fixture-validation success; no change to canon/runtime/production authority.
+
 ## Blockers / UNKNOWNs
 - Canon-dependent GemVerse work remains blocked on verified creator/source canon.
-- Exact-head CI is required before GV-V4 can be called VERIFIED.
 - Physical/production mutation remains owner-only.
 - Fixture success does not satisfy AgentOS Level-2 admission/ownership or production authority.
 
 ## Replenishment rule
-Fresh-scan PR #10 and exact-head CI first. If GV-V4 receives exact-head fixture-validation success, promote only that bounded synthetic scope and replenish with 2–5 equivalent recovery-evidence provenance negatives if a concrete gap remains. Otherwise diagnose the failing exact-head workflow before adding more cases. Keep all canon-dependent work blocked until verified canon exists.
+Fresh-scan PR #10 and exact-head CI first. Preserve `f85f5bb0.../34895246300` as the verified substantive baseline. Advance GV-V5 only for a concrete uncovered fixture boundary; otherwise move to another safe Lane C workstream rather than create redundant tests. Keep all canon-dependent work blocked until verified canon exists.
