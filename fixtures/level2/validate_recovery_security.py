@@ -46,7 +46,19 @@ def main() -> None:
     widened_action["evidence"]["action"] = "PUBLISH_RECOVERED_STATE"
     expect_rejected(widened_action, vf.INITIAL, record, "RECOVERY_RESULT_ACTION_STATE_MISMATCH")
 
-    print("PASS: GemVerse recovery evidence rejects state, correlation, current/target hash, project, action, and secret-shaped schema tampering")
+    wrong_preimage_hash = copy.deepcopy(result)
+    wrong_preimage_hash["evidence"]["preimage_sha256"] = vf.sha256_text(vf.TARGET)
+    expect_rejected(wrong_preimage_hash, vf.INITIAL, record, "RECOVERY_RESULT_EVIDENCE_MISMATCH")
+
+    wrong_mission = copy.deepcopy(result)
+    wrong_mission["evidence"]["mission"] = "other-mission"
+    expect_rejected(wrong_mission, vf.INITIAL, record, "RECOVERY_RESULT_EVIDENCE_MISMATCH")
+
+    non_fixture_evidence = copy.deepcopy(result)
+    non_fixture_evidence["evidence"]["fixture"] = False
+    expect_rejected(non_fixture_evidence, vf.INITIAL, record, "RECOVERY_RESULT_EVIDENCE_MISMATCH")
+
+    print("PASS: GemVerse recovery evidence rejects state, correlation, mission, fixture identity, current/preimage/target hash, project, action, and secret-shaped schema tampering")
 
 
 if __name__ == "__main__":
