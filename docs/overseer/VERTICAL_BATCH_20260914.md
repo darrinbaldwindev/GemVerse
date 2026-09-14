@@ -66,6 +66,64 @@ Batch is GREEN only if:
 - all created files are re-read and verified;
 - no prohibited system/canon/production change is made.
 
+## Execution results
+
+### V1 — COMPLETE
+Created and verified:
+- `docs/overseer/IMPLEMENTATION_CLAIM_RECONCILIATION_20260914.md`
+
+Result: locked puzzle-design intent is now explicitly separated from unverified executable implementation. Historical wording is preserved, but future interpretation must not treat it as build/run proof.
+
+### V2 — COMPLETE
+Created and verified:
+- `docs/overseer/ARENA_SOURCE_RECOVERY_PACKET_20260914.md`
+
+Result: exact source-receipt, integrity, reproducibility, smoke-test, parity, and safety-review gates are defined for both native Construct and browser-source recovery.
+
+### V3 — COMPLETE
+Stale claims were triaged without destructive history rewriting. The evidence-safe replacement wording for `DECISION_LOG.md` MECH-001 and `NEXT_PRIORITIES.md` P1-005 is recorded in the reconciliation document.
+
+### V4 — COMPLETE
+Created and verified:
+- `docs/overseer/ORPHAN_AND_STALE_EVIDENCE_AUDIT_20260914.md`
+
+Result: browser source, migration contract, native Construct source, browser manifests, seven historical `output/` artifacts, and the cited handover filename are all classified by current evidence status and next safe action.
+
+### V5 — COMPLETE
+Created and verified:
+- `docs/overseer/SESSION_LOG_ADDENDUM_20260914.md`
+
+Result: this substantive session is recorded durably without risking corruption of the append-only, truncated `SESSION-LOG.md`.
+
+### V6 — COMPLETE
+Created and verified:
+- `docs/overseer/PRODUCT_SNAPSHOT_PREREQUISITES_20260914.md`
+
+Result: Marketing now has a clear evidence gate for product boundary, audience, first usable experience, platform state, Arena scope, monetization, launch status, and supporting evidence.
+
+## Deliberately unchanged
+
+- No creator-gated canon was changed.
+- No production or deployment action was taken.
+- No engine implementation was recreated.
+- No authentication, payments, live data, analytics, moderation, community-safety, monetization, progression, or release settings were changed.
+- No historical file was deleted or silently rewritten.
+
+## Remaining blocker
+
+The critical blocker is unchanged: authoritative Arena executable source and reproducible run evidence are not available in the accessible repository. GemVerse implementation readiness therefore remains AMBER until source recovery and verification succeed.
+
+## Next vertical-batch priority
+
+On the next `cont` / `continue autonomously`:
+
+1. Fresh-scan the repository first.
+2. Check whether new commits/files have supplied any Arena source or recovery clues.
+3. Search historical names/archive references for the missing handover and seven `output/` artifacts.
+4. Reconcile maintained priority/decision records if a safe non-destructive update path is available.
+5. If source arrives, immediately execute the source-recovery verification pipeline.
+6. Otherwise advance the next highest-value safe Arena/canon/product-readiness work without fabricating implementation evidence.
+
 ## Execution status
 
-**IN PROGRESS**
+**GREEN — BATCH COMPLETE**
