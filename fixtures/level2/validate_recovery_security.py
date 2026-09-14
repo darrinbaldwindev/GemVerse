@@ -33,7 +33,20 @@ def main() -> None:
     extra_secret_shaped_evidence["evidence"]["credential"] = "synthetic-do-not-persist"
     expect_rejected(extra_secret_shaped_evidence, vf.INITIAL, record, "RECOVERY_EVIDENCE_SCHEMA_MISMATCH")
 
-    print("PASS: GemVerse recovery evidence rejects state, correlation, hash, and secret-shaped schema tampering")
+    wrong_target_hash = copy.deepcopy(result)
+    wrong_target_hash["evidence"]["target_sha256"] = vf.sha256_text(vf.INITIAL)
+    expect_rejected(wrong_target_hash, vf.INITIAL, record, "RECOVERY_RESULT_EVIDENCE_MISMATCH")
+
+    wrong_project = copy.deepcopy(result)
+    wrong_project["evidence"]["project"] = "other-project"
+    expect_rejected(wrong_project, vf.INITIAL, record, "RECOVERY_RESULT_EVIDENCE_MISMATCH")
+
+    widened_action = copy.deepcopy(result)
+    widened_action["action"] = "PUBLISH_RECOVERED_STATE"
+    widened_action["evidence"]["action"] = "PUBLISH_RECOVERED_STATE"
+    expect_rejected(widened_action, vf.INITIAL, record, "RECOVERY_RESULT_ACTION_STATE_MISMATCH")
+
+    print("PASS: GemVerse recovery evidence rejects state, correlation, current/target hash, project, action, and secret-shaped schema tampering")
 
 
 if __name__ == "__main__":
