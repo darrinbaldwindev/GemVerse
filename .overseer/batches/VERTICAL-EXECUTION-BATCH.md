@@ -9,15 +9,15 @@ Security: risk S2 for branch/test writes; materially applicable SG-05/06/07/10/1
 ## Current batch
 
 ### GV-V1 — recovery evidence tamper negatives
-Status: ACTIVE / EXACT_HEAD_CI_PENDING
-Exact test/workflow head before this batch-file receipt: `2011be5f94cd85d12297892132960574a235f9f8`.
+Status: VERIFIED_BOUNDED
+Verified lineage: `9de8b7a2d15671281d76165f43b830e63e3c0f2e`, Level 2 fixture validation run `34883431401` SUCCESS.
 Implemented four homogeneous negatives:
 1. chosen-state tamper is rejected;
 2. cross-correlation tamper is rejected;
 3. current-state hash tamper is rejected;
 4. secret-shaped extra recovery evidence is rejected by strict schema.
-Workflow now runs both the base deterministic fixture and the tamper-negative suite.
-Acceptance: exact-head Level 2 fixture validation success; repository fixture remains unchanged; no canon/runtime promotion.
+Workflow runs both the base deterministic fixture and the tamper-negative suite.
+Disposition: functional VERIFIED for this synthetic fixture scope only. Security PASS_BOUNDED for the tested SG-05/10/14 boundary behavior; remaining applicable gates stay preserved boundaries rather than widened authority. No canon/runtime/AgentOS promotion.
 
 ### GV-V2 — recovery replay/candidate fixture expansion
 Status: PENDING
@@ -31,9 +31,9 @@ Dependencies: AgentOS SG-08 continuous ownership, SG-01/02 authenticated actor/g
 No execution through AgentOS until those gates pass.
 
 ## Blockers / UNKNOWNs
-- Exact-head CI for GV-V1 is pending.
 - Canon-dependent GemVerse work remains blocked on verified creator/source canon.
 - Physical/production mutation remains owner-only.
+- GV-V1 success does not satisfy AgentOS Level-2 admission/ownership or production authority.
 
 ## Replenishment rule
-Fresh-scan PR #10 and exact-head CI first. Promote only the exact fixture scope if CI succeeds. Otherwise inspect and repair the failing fixture. Keep all canon-dependent work blocked and continue fixture-only assurance where useful.
+Fresh-scan PR #10 and exact-head CI first. Preserve GV-V1 as a bounded regression baseline. Consume GV-V2 only with fixture-only scope and exact-head verification. Keep all canon-dependent work blocked until verified canon exists.
