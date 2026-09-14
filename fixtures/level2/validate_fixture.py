@@ -38,15 +38,31 @@ def validate_complete_state(text: str) -> None:
         raise AssertionError("partial/mixed/truncated fixture state")
 
 
-def validate_prepared_record(record: dict) -> None:
-    expected = {
+def canonical_prepared_record() -> dict:
+    return {
         "mission": "agentos-level2",
         "project": "gemverse",
         "preimage_sha256": sha256_text(INITIAL),
         "target_sha256": sha256_text(TARGET),
     }
-    if record != expected:
+
+
+def validate_prepared_record(record: dict) -> None:
+    if record != canonical_prepared_record():
         raise AssertionError("prepared record identity/correlation mismatch")
+
+
+def recover(current_text: str, prepared_text: str, record: dict) -> dict:
+    validate_complete_state(current_text)
+    validate_complete_state(prepared_text)
+    validate_prepared_record(record)
+    if prepared_text != TARGET:
+        raise AssertionError("prepared payload is not canonical target")
+    if current_text == TARGET:
+        return {"chosen_state": "TARGET", "action": "ALREADY_COMPLETE"}
+    if current_text == INITIAL:
+        return {"chosen_state": "TARGET", "action": "PROMOTE_PREPARED"}
+    raise AssertionError("unrecoverable state")
 
 
 def assert_rejected(text: str, label: str) -> None:
@@ -74,16 +90,14 @@ def assert_prepared_rejected(record: dict, label: str) -> None:
 
 
 def main() -> None:
-    current = SOURCE.read_text(encoding="utf-8")
-    assert current == INITIAL, "repository fixture no longer matches canonical initial state"
+    repository_before = SOURCE.read_text(encoding="utf-8")
+    assert repository_before == INITIAL, "repository fixture no longer matches canonical initial state"
 
-    first = mutate(current)
+    first = mutate(repository_before)
     assert first == TARGET, "authorised mutation does not produce exact target"
     assert first.count("state=VERIFIED_EDIT") == 1
     assert first.count("counter=1") == 1
-
-    replay = mutate(first)
-    assert replay == TARGET, "replay is not idempotent"
+    assert mutate(first) == TARGET, "replay is not idempotent"
 
     near_misses = {
         "truncated": "mission=agentos-level2\nproject=gemverse\nstate=VERIFIED",
@@ -95,19 +109,15 @@ def main() -> None:
         assert_rejected(text, label)
         assert_mutation_rejected(text, label)
 
-    canonical_prepared = {
-        "mission": "agentos-level2",
-        "project": "gemverse",
-        "preimage_sha256": sha256_text(INITIAL),
-        "target_sha256": sha256_text(TARGET),
-    }
+    canonical_prepared = canonical_prepared_record()
     validate_prepared_record(canonical_prepared)
-
     prepared_near_misses = {
         "prepared-wrong-project": {**canonical_prepared, "project": "other"},
         "prepared-stale-preimage": {**canonical_prepared, "preimage_sha256": sha256_text(TARGET)},
         "prepared-wrong-target": {**canonical_prepared, "target_sha256": sha256_text(INITIAL)},
         "prepared-wrong-mission": {**canonical_prepared, "mission": "other"},
+        "prepared-missing-project": {k: v for k, v in canonical_prepared.items() if k != "project"},
+        "prepared-missing-mission": {k: v for k, v in canonical_prepared.items() if k != "mission"},
     }
     for label, record in prepared_near_misses.items():
         assert_prepared_rejected(record, label)
@@ -122,22 +132,25 @@ def main() -> None:
         prepared.write_text(TARGET, encoding="utf-8")
         prepared_meta = work.with_suffix(work.suffix + ".prepared.json")
         prepared_meta.write_text(json.dumps(canonical_prepared, sort_keys=True), encoding="utf-8")
-        validate_complete_state(work.read_text(encoding="utf-8"))
-        validate_complete_state(prepared.read_text(encoding="utf-8"))
-        validate_prepared_record(json.loads(prepared_meta.read_text(encoding="utf-8")))
+
+        decision = recover(original, prepared.read_text(encoding="utf-8"), json.loads(prepared_meta.read_text(encoding="utf-8")))
+        assert decision == {"chosen_state": "TARGET", "action": "PROMOTE_PREPARED"}
+
+        duplicate = recover(TARGET, prepared.read_text(encoding="utf-8"), json.loads(prepared_meta.read_text(encoding="utf-8")))
+        assert duplicate == {"chosen_state": "TARGET", "action": "ALREADY_COMPLETE"}
 
         for label, text in near_misses.items():
             bad = work.with_suffix(work.suffix + f".{label}")
             bad.write_text(text, encoding="utf-8")
             assert_rejected(bad.read_text(encoding="utf-8"), label)
 
-        # Stale replay evidence may not be rebound to the current authorised pre-image.
         stale_meta = {**canonical_prepared, "preimage_sha256": sha256_text(TARGET)}
         stale_path = work.with_suffix(work.suffix + ".stale-prepared.json")
         stale_path.write_text(json.dumps(stale_meta, sort_keys=True), encoding="utf-8")
         assert_prepared_rejected(json.loads(stale_path.read_text(encoding="utf-8")), "stale-replay")
 
-    print("PASS: GemVerse Level 2 fixture contract rejects state and prepared-record identity/correlation near-misses")
+    assert SOURCE.read_text(encoding="utf-8") == repository_before, "synthetic recovery tests changed canonical fixture"
+    print("PASS: GemVerse Level 2 fixture recovery is deterministic, idempotent, identity-bound, and leaves canonical fixture unchanged")
 
 
 if __name__ == "__main__":
