@@ -8,21 +8,20 @@ Security: risk S2 for branch/test writes; materially applicable SG-05/06/07/10/1
 
 ## Current batch
 
-### GV-V1 — recovery evidence tamper negatives
-Status: VERIFIED_BOUNDED
-Verified lineage: `9de8b7a2d15671281d76165f43b830e63e3c0f2e`, Level 2 fixture validation run `34883431401` SUCCESS.
-Implemented four homogeneous negatives:
-1. chosen-state tamper is rejected;
-2. cross-correlation tamper is rejected;
-3. current-state hash tamper is rejected;
-4. secret-shaped extra recovery evidence is rejected by strict schema.
-Workflow runs both the base deterministic fixture and the tamper-negative suite.
-Disposition: functional VERIFIED for this synthetic fixture scope only. Security PASS_BOUNDED for the tested SG-05/10/14 boundary behavior; remaining applicable gates stay preserved boundaries rather than widened authority. No canon/runtime/AgentOS promotion.
+### GV-V1 — recovery evidence tamper baseline
+Status: VERIFIED_BOUNDED on predecessor exact head `b6b4bb4def2eb6a244671afe17a7670075249205`, Level 2 fixture validation run `34883530631` SUCCESS.
+Verified predecessor cases reject chosen-state, cross-correlation, current-state hash and secret-shaped extra evidence tampering.
+Disposition: fixture-only functional/security evidence; no canon/runtime/AgentOS promotion.
 
-### GV-V2 — recovery replay/candidate fixture expansion
-Status: PENDING
-Objective: add 2–5 fixture-only adjacent cases for replay/ambiguous prepared candidate/result mismatch without adding runtime persistence or canon.
-Acceptance: deterministic fail-closed results and no payload/secret leakage.
+### GV-V2 — recovery replay/candidate/evidence expansion
+Status: ACTIVE / EXACT_HEAD_CI_PENDING
+Implementation commit: `a07a5bc44fe7286820dbde268d2fb7b5ed7d5bb7`.
+Added three adjacent fail-closed recovery-result cases:
+1. target-state hash substitution is rejected;
+2. cross-project evidence substitution is rejected;
+3. action widening to `PUBLISH_RECOVERED_STATE` is rejected even when both result/evidence action fields are changed together.
+These extend the prior strict-schema/correlation fixture without adding persistence, runtime authority or canon.
+Verification: exact-head Actions query for `a07a5bc4...` returned zero runs at reconciliation time. Predecessor `b6b4bb4.../34883530631` remains a regression baseline only and is not inherited by the new head.
 
 ### GV-V3 — AgentOS acceptance handoff packet
 Status: BLOCKED_GATED
@@ -32,8 +31,9 @@ No execution through AgentOS until those gates pass.
 
 ## Blockers / UNKNOWNs
 - Canon-dependent GemVerse work remains blocked on verified creator/source canon.
+- Exact-head CI is required before GV-V2 can be called VERIFIED.
 - Physical/production mutation remains owner-only.
-- GV-V1 success does not satisfy AgentOS Level-2 admission/ownership or production authority.
+- Fixture success does not satisfy AgentOS Level-2 admission/ownership or production authority.
 
 ## Replenishment rule
-Fresh-scan PR #10 and exact-head CI first. Preserve GV-V1 as a bounded regression baseline. Consume GV-V2 only with fixture-only scope and exact-head verification. Keep all canon-dependent work blocked until verified canon exists.
+Fresh-scan PR #10 and exact-head CI first. If the current changed lineage receives exact-head fixture-validation success, promote only GV-V2's bounded synthetic scope. Otherwise diagnose the workflow trigger/Actions evidence before adding more recovery cases. Keep all canon-dependent work blocked until verified canon exists.
