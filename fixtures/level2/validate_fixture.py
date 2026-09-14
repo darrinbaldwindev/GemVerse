@@ -25,6 +25,11 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def stable_correlation(mission: str, project: str, preimage_hash: str, target_hash: str) -> str:
+    material = "|".join([mission, project, preimage_hash, target_hash])
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()[:24]
+
+
 def mutate(text: str) -> str:
     if text == TARGET:
         return TARGET
@@ -39,11 +44,16 @@ def validate_complete_state(text: str) -> None:
 
 
 def canonical_prepared_record() -> dict:
+    mission = "agentos-level2"
+    project = "gemverse"
+    preimage_hash = sha256_text(INITIAL)
+    target_hash = sha256_text(TARGET)
     return {
-        "mission": "agentos-level2",
-        "project": "gemverse",
-        "preimage_sha256": sha256_text(INITIAL),
-        "target_sha256": sha256_text(TARGET),
+        "mission": mission,
+        "project": project,
+        "preimage_sha256": preimage_hash,
+        "target_sha256": target_hash,
+        "correlation_id": stable_correlation(mission, project, preimage_hash, target_hash),
     }
 
 
@@ -56,13 +66,20 @@ def recover(current_text: str, prepared_text: str, record: dict) -> dict:
     validate_complete_state(current_text)
     validate_complete_state(prepared_text)
     validate_prepared_record(record)
-    if prepared_text != TARGET:
+    if sha256_text(prepared_text) != record["target_sha256"] or prepared_text != TARGET:
         raise AssertionError("prepared payload is not canonical target")
     if current_text == TARGET:
-        return {"chosen_state": "TARGET", "action": "ALREADY_COMPLETE"}
+        return {"chosen_state": "TARGET", "action": "ALREADY_COMPLETE", "correlation_id": record["correlation_id"]}
     if current_text == INITIAL:
-        return {"chosen_state": "TARGET", "action": "PROMOTE_PREPARED"}
+        return {"chosen_state": "TARGET", "action": "PROMOTE_PREPARED", "correlation_id": record["correlation_id"]}
     raise AssertionError("unrecoverable state")
+
+
+def recover_candidates(current_text: str, candidates: list[dict]) -> dict:
+    if len(candidates) != 1:
+        raise AssertionError("prepared recovery requires exactly one correlated candidate")
+    candidate = candidates[0]
+    return recover(current_text, candidate["payload"], candidate["record"])
 
 
 def assert_rejected(text: str, label: str) -> None:
@@ -116,6 +133,7 @@ def main() -> None:
         "prepared-stale-preimage": {**canonical_prepared, "preimage_sha256": sha256_text(TARGET)},
         "prepared-wrong-target": {**canonical_prepared, "target_sha256": sha256_text(INITIAL)},
         "prepared-wrong-mission": {**canonical_prepared, "mission": "other"},
+        "prepared-wrong-correlation": {**canonical_prepared, "correlation_id": "other"},
         "prepared-missing-project": {k: v for k, v in canonical_prepared.items() if k != "project"},
         "prepared-missing-mission": {k: v for k, v in canonical_prepared.items() if k != "mission"},
     }
@@ -133,11 +151,42 @@ def main() -> None:
         prepared_meta = work.with_suffix(work.suffix + ".prepared.json")
         prepared_meta.write_text(json.dumps(canonical_prepared, sort_keys=True), encoding="utf-8")
 
-        decision = recover(original, prepared.read_text(encoding="utf-8"), json.loads(prepared_meta.read_text(encoding="utf-8")))
-        assert decision == {"chosen_state": "TARGET", "action": "PROMOTE_PREPARED"}
+        candidate = {"payload": prepared.read_text(encoding="utf-8"), "record": json.loads(prepared_meta.read_text(encoding="utf-8"))}
+        decision = recover_candidates(original, [candidate])
+        repeated = recover_candidates(original, [candidate])
+        assert json.dumps(decision, sort_keys=True) == json.dumps(repeated, sort_keys=True), "recovery decision is not byte-stable"
+        assert decision["action"] == "PROMOTE_PREPARED"
 
-        duplicate = recover(TARGET, prepared.read_text(encoding="utf-8"), json.loads(prepared_meta.read_text(encoding="utf-8")))
-        assert duplicate == {"chosen_state": "TARGET", "action": "ALREADY_COMPLETE"}
+        duplicate = recover_candidates(TARGET, [candidate])
+        assert duplicate["action"] == "ALREADY_COMPLETE"
+        assert duplicate["correlation_id"] == decision["correlation_id"]
+
+        # Metadata can be canonical while payload is not; payload hash/target binding must still fail closed.
+        try:
+            recover(INITIAL, INITIAL, canonical_prepared)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError("metadata-correct but payload-mismatched prepared artifact was accepted")
+
+        noncanonical_payload = TARGET.replace("counter=1", "counter=9")
+        try:
+            recover(INITIAL, noncanonical_payload, canonical_prepared)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError("non-canonical prepared target was accepted")
+
+        competing = [
+            candidate,
+            {"payload": TARGET, "record": {**canonical_prepared, "correlation_id": "competing-correlation"}},
+        ]
+        try:
+            recover_candidates(INITIAL, competing)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError("competing prepared artifacts were silently selected")
 
         for label, text in near_misses.items():
             bad = work.with_suffix(work.suffix + f".{label}")
@@ -150,7 +199,7 @@ def main() -> None:
         assert_prepared_rejected(json.loads(stale_path.read_text(encoding="utf-8")), "stale-replay")
 
     assert SOURCE.read_text(encoding="utf-8") == repository_before, "synthetic recovery tests changed canonical fixture"
-    print("PASS: GemVerse Level 2 fixture recovery is deterministic, idempotent, identity-bound, and leaves canonical fixture unchanged")
+    print("PASS: GemVerse Level 2 fixture recovery is deterministic, correlation-bound, fail-closed on competing artifacts, and leaves canonical fixture unchanged")
 
 
 if __name__ == "__main__":
