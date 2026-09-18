@@ -20,3 +20,5 @@ jobs:
           python-version: '3.12'
       - name: Validate deterministic fixture contract
         run: python fixtures/level2/validate_fixture.py
+      - name: Validate recovery evidence tamper boundaries
+        run: python fixtures/level2/validate_recovery_security.py
