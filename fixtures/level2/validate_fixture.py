@@ -25,6 +25,7 @@ EVIDENCE_KEYS = {
     "fixture", "mission", "project", "correlation_id", "preimage_sha256",
     "target_sha256", "current_state_sha256", "action"
 }
+CANDIDATE_KEYS = {"payload", "record"}
 
 
 def sha256_text(text: str) -> str:
@@ -124,8 +125,8 @@ def recover(current_text: str, prepared_text: str, record: dict) -> dict:
         raise AssertionError("RECOVERY_DENIED_PREPARED_STATE_INVALID") from exc
     try:
         validate_prepared_record(record)
-    except AssertionError as exc:
-        raise AssertionError(f"RECOVERY_DENIED_PREPARED_IDENTITY: {exc}") from exc
+    except (AssertionError, TypeError) as exc:
+        raise AssertionError("RECOVERY_DENIED_PREPARED_IDENTITY") from exc
     if sha256_text(prepared_text) != record["target_sha256"] or prepared_text != TARGET:
         raise AssertionError("RECOVERY_DENIED_PREPARED_PAYLOAD_MISMATCH")
     action = expected_action(current_text)
@@ -139,10 +140,18 @@ def recover(current_text: str, prepared_text: str, record: dict) -> dict:
     return result
 
 
+def validate_recovery_candidate(candidate: object) -> None:
+    if not isinstance(candidate, dict) or set(candidate) != CANDIDATE_KEYS:
+        raise AssertionError("RECOVERY_DENIED_CANDIDATE_SCHEMA")
+    if not isinstance(candidate["payload"], str) or not isinstance(candidate["record"], dict):
+        raise AssertionError("RECOVERY_DENIED_CANDIDATE_SCHEMA")
+
+
 def recover_candidates(current_text: str, candidates: list[dict]) -> dict:
     if len(candidates) != 1:
         raise AssertionError("RECOVERY_DENIED_CANDIDATE_AMBIGUITY")
     candidate = candidates[0]
+    validate_recovery_candidate(candidate)
     return recover(current_text, candidate["payload"], candidate["record"])
 
 
@@ -218,6 +227,22 @@ def main() -> None:
         prepared = work.with_suffix(work.suffix + ".prepared")
         prepared.write_text(TARGET, encoding="utf-8")
         candidate = {"payload": prepared.read_text(encoding="utf-8"), "record": canonical_prepared}
+
+        malformed_candidates = [
+            "not-an-object",
+            {"record": canonical_prepared},
+            {"payload": TARGET},
+            {"payload": TARGET, "record": canonical_prepared, "unexpected": "secret-do-not-leak"},
+            {"payload": 7, "record": canonical_prepared},
+        ]
+        for malformed in malformed_candidates:
+            try:
+                recover_candidates(original, [malformed])
+            except AssertionError as exc:
+                assert str(exc) == "RECOVERY_DENIED_CANDIDATE_SCHEMA"
+                assert "secret-do-not-leak" not in str(exc)
+            else:
+                raise AssertionError("malformed recovery candidate envelope was accepted")
 
         decision = recover_candidates(original, [candidate])
         repeated = recover_candidates(original, [candidate])
